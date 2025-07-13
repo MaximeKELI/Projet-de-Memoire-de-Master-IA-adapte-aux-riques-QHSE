@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard QHSE - Analytics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap 5 + Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- AOS Animation -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-dark: #1a1a2e;
+      --primary-color: #4361ee;
+      --primary-light: #4cc9f0;
+      --danger-color: #ef233c;
+      --warning-color: #ffaa00;
+      --success-color: #38b000;
+      --sidebar-width: 280px;
+    }
+    
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      overflow-x: hidden;
+    }
+    
+    /* Sidebar stylée */
+    .sidebar {
+      width: var(--sidebar-width);
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      background: linear-gradient(180deg, var(--primary-dark) 0%, #16213e 100%);
+      box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+    
+    .sidebar-brand {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .sidebar-brand img {
+      height: 40px;
+      margin-right: 10px;
+    }
+    
+    .sidebar-brand span {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: white;
+      background: linear-gradient(to right, var(--primary-light), var(--primary-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    .nav-link {
+      color: rgba(255,255,255,0.7);
+      border-left: 3px solid transparent;
+      transition: all 0.3s;
+    }
+    
+    .nav-link:hover, .nav-link.active {
+      color: white;
+      background: rgba(255,255,255,0.05);
+      border-left: 3px solid var(--primary-light);
+    }
+    
+    .nav-link i {
+      width: 24px;
+      text-align: center;
+      margin-right: 10px;
+    }
+    
+    /* Main content area */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      padding: 20px;
+      transition: all 0.3s;
+    }
+    
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 25px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      margin-bottom: 25px;
+    }
+    
+    .user-menu img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-left: 15px;
+      cursor: pointer;
+      border: 2px solid var(--primary-light);
+    }
+    
+    /* Cards */
+    .stat-card {
+      border: none;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 25px;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .stat-card .card-body {
+      padding: 25px;
+    }
+    
+    .stat-card .stat-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+    }
+    
+    .stat-card.danger .stat-icon {
+      background-color: rgba(239, 35, 60, 0.1);
+      color: var(--danger-color);
+    }
+    
+    .stat-card.warning .stat-icon {
+      background-color: rgba(255, 170, 0, 0.1);
+      color: var(--warning-color);
+    }
+    
+    .stat-card.success .stat-icon {
+      background-color: rgba(56, 176, 0, 0.1);
+      color: var(--success-color);
+    }
+    
+    .stat-card.primary .stat-icon {
+      background-color: rgba(67, 97, 238, 0.1);
+      color: var(--primary-color);
+    }
+    
+    .stat-card h2 {
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    
+    .stat-card p {
+      color: #64748b;
+      margin-bottom: 0;
+    }
+    
+    /* Charts container */
+    .chart-container {
+      background: white;
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 25px;
+    }
+    
+    .chart-container h4 {
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #1e293b;
+    }
+    
+    /* Recent incidents table */
+    .incidents-table {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    
+    .incidents-table .table th {
+      border-top: none;
+      background: #f8fafc;
+      color: #64748b;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    
+    .incidents-table .table td {
+      vertical-align: middle;
+      border-color: #f1f5f9;
+    }
+    
+    .badge-risk {
+      padding: 5px 10px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+    
+    .badge-risk.high {
+      background-color: rgba(239, 35, 60, 0.1);
+      color: var(--danger-color);
+    }
+    
+    .badge-risk.medium {
+      background-color: rgba(255, 170, 0, 0.1);
+      color: var(--warning-color);
+    }
+    
+    .badge-risk.low {
+      background-color: rgba(56, 176, 0, 0.1);
+      color: var(--success-color);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      .main-content {
+        margin-left: 0;
+      }
+      .sidebar-toggler {
+        display: block !important;
+      }
+    }
+    
+    /* Animation classes */
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(67, 97, 238, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-color);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-brand p-4">
+      <img src="https://via.placeholder.com/40" alt="Logo">
+      <span>QHSE ANALYTICS</span>
+    </div>
+    <ul class="nav flex-column p-3">
+      <li class="nav-item">
+        <a class="nav-link active" href="#">
+          <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="form.html">
+          <i class="bi bi-clipboard-plus"></i> Nouveau Rapport
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">
+          <i class="bi bi-shield-check"></i> Prévention
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">
+          <i class="bi bi-graph-up"></i> Statistiques
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">
+          <i class="bi bi-exclamation-triangle"></i> Alertes
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">
+          <i class="bi bi-people"></i> Employés
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">
+          <i class="bi bi-building"></i> Sites
+        </a>
+      </li>
+      <li class="nav-item mt-3">
+        <a class="nav-link" href="#">
+          <i class="bi bi-gear"></i> Paramètres
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">
+          <i class="bi bi-box-arrow-right"></i> Déconnexion
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <div class="header">
+      <button class="btn btn-outline-primary d-none d-lg-block sidebar-toggler">
+        <i class="bi bi-list"></i>
+      </button>
+      <h4 class="mb-0">Tableau de Bord QHSE</h4>
+      <div class="user-menu d-flex align-items-center">
+        <div class="dropdown">
+          <button class="btn btn-light dropdown-toggle" type="button" id="notifDropdown" data-bs-toggle="dropdown">
+            <i class="bi bi-bell"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger pulse">
+              3
+            </span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><h6 class="dropdown-header">Nouvelles Alertes</h6></li>
+            <li><a class="dropdown-item" href="#">Nouvel incident à l'atelier B</a></li>
+            <li><a class="dropdown-item" href="#">Rapport mensuel en attente</a></li>
+            <li><a class="dropdown-item" href="#">Formation sécurité à planifier</a></li>
+          </ul>
+        </div>
+        <img src="https://via.placeholder.com/40" alt="User" class="dropdown-toggle" data-bs-toggle="dropdown">
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><h6 class="dropdown-header">Responsable QHSE</h6></li>
+          <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i> Profil</a></li>
+          <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i> Paramètres</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i> Déconnexion</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row">
+      <div class="col-md-6 col-lg-3" data-aos="fade-up">
+        <div class="stat-card danger">
+          <div class="card-body">
+            <div class="stat-icon">
+              <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <h2>14</h2>
+            <p>Incidents critiques</p>
+            <div class="progress mt-3" style="height: 6px;">
+              <div class="progress-bar bg-danger" role="progressbar" style="width: 75%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+        <div class="stat-card warning">
+          <div class="card-body">
+            <div class="stat-icon">
+              <i class="bi bi-clipboard-data"></i>
+            </div>
+            <h2>32</h2>
+            <p>Rapports ce mois</p>
+            <div class="progress mt-3" style="height: 6px;">
+              <div class="progress-bar bg-warning" role="progressbar" style="width: 55%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+        <div class="stat-card success">
+          <div class="card-body">
+            <div class="stat-icon">
+              <i class="bi bi-check-circle"></i>
+            </div>
+            <h2>89%</h2>
+            <p>Conformité</p>
+            <div class="progress mt-3" style="height: 6px;">
+              <div class="progress-bar bg-success" role="progressbar" style="width: 89%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+        <div class="stat-card primary">
+          <div class="card-body">
+            <div class="stat-icon">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <h2>64%</h2>
+            <p>Risques réduits</p>
+            <div class="progress mt-3" style="height: 6px;">
+              <div class="progress-bar bg-primary" role="progressbar" style="width: 64%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row">
+      <div class="col-lg-8" data-aos="fade-up">
+        <div class="chart-container">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4>Incidents par secteur</h4>
+            <div class="dropdown">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                Ce mois-ci
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">Aujourd'hui</a></li>
+                <li><a class="dropdown-item" href="#">Cette semaine</a></li>
+                <li><a class="dropdown-item" href="#">Ce mois-ci</a></li>
+                <li><a class="dropdown-item" href="#">Cette année</a></li>
+              </ul>
+            </div>
+          </div>
+          <canvas id="sectorChart" height="300"></canvas>
+        </div>
+      </div>
+      <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="chart-container">
+          <h4>Types d'incidents</h4>
+          <canvas id="incidentTypeChart" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Second Charts Row -->
+    <div class="row mt-4">
+      <div class="col-lg-6" data-aos="fade-up">
+        <div class="chart-container">
+          <h4>Tendance mensuelle</h4>
+          <canvas id="monthlyTrendChart" height="250"></canvas>
+        </div>
+      </div>
+      <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
+        <div class="chart-container">
+          <h4>Répartition par gravité</h4>
+          <canvas id="severityChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Incidents -->
+    <div class="row mt-4">
+      <div class="col-12" data-aos="fade-up">
+        <div class="incidents-table">
+          <div class="p-4 border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+              <h4 class="mb-0">Incidents récents</h4>
+              <a href="#" class="btn btn-sm btn-outline-primary">Voir tout</a>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Date/Heure</th>
+                  <th>Secteur</th>
+                  <th>Type</th>
+                  <th>Localisation</th>
+                  <th>Gravité</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>#INC-0042</td>
+                  <td>15/07 14:30</td>
+                  <td>Atelier B</td>
+                  <td>Chute</td>
+                  <td>Zone de stockage</td>
+                  <td><span class="badge-risk high">Élevé</span></td>
+                  <td><span class="badge bg-warning">En cours</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#INC-0041</td>
+                  <td>14/07 09:15</td>
+                  <td>Bureau</td>
+                  <td>TMS</td>
+                  <td>Poste 12</td>
+                  <td><span class="badge-risk medium">Moyen</span></td>
+                  <td><span class="badge bg-success">Résolu</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#INC-0040</td>
+                  <td>13/07 16:45</td>
+                  <td>Chantier A</td>
+                  <td>Matériel</td>
+                  <td>Zone 5</td>
+                  <td><span class="badge-risk low">Faible</span></td>
+                  <td><span class="badge bg-success">Résolu</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#INC-0039</td>
+                  <td>12/07 11:20</td>
+                  <td>Laboratoire</td>
+                  <td>Chimique</td>
+                  <td>Salle B12</td>
+                  <td><span class="badge-risk high">Élevé</span></td>
+                  <td><span class="badge bg-danger">Urgent</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#INC-0038</td>
+                  <td>10/07 08:30</td>
+                  <td>Atelier A</td>
+                  <td>Machine</td>
+                  <td>Ligne 3</td>
+                  <td><span class="badge-risk medium">Moyen</span></td>
+                  <td><span class="badge bg-success">Résolu</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    // Initialize AOS animations
+    AOS.init({
+      duration: 800,
+      once: true
+    });
+
+    // Toggle sidebar on mobile
+    document.querySelector('.sidebar-toggler').addEventListener('click', function() {
+      document.querySelector('.sidebar').classList.toggle('active');
+    });
+
+    // Sample data for charts (replace with real data from your backend)
+    const sectorData = {
+      labels: ['Atelier A', 'Atelier B', 'Bureaux', 'Chantier A', 'Laboratoire', 'Entrepôt'],
+      datasets: [{
+        label: 'Incidents',
+        data: [12, 19, 3, 5, 8, 4],
+        backgroundColor: [
+          'rgba(67, 97, 238, 0.7)',
+          'rgba(239, 35, 60, 0.7)',
+          'rgba(56, 176, 0, 0.7)',
+          'rgba(255, 170, 0, 0.7)',
+          'rgba(151, 117, 250, 0.7)',
+          'rgba(76, 201, 240, 0.7)'
+        ],
+        borderColor: [
+          'rgba(67, 97, 238, 1)',
+          'rgba(239, 35, 60, 1)',
+          'rgba(56, 176, 0, 1)',
+          'rgba(255, 170, 0, 1)',
+          'rgba(151, 117, 250, 1)',
+          'rgba(76, 201, 240, 1)'
+        ],
+        borderWidth: 1
+      }]
+    };
+
+    const incidentTypeData = {
+      labels: ['Chute', 'TMS', 'Machine', 'Chimique', 'Électrique', 'Autre'],
+      datasets: [{
+        data: [15, 10, 8, 5, 3, 4],
+        backgroundColor: [
+          'rgba(239, 35, 60, 0.7)',
+          'rgba(255, 170, 0, 0.7)',
+          'rgba(67, 97, 238, 0.7)',
+          'rgba(56, 176, 0, 0.7)',
+          'rgba(151, 117, 250, 0.7)',
+          'rgba(76, 201, 240, 0.7)'
+        ],
+        borderColor: [
+          'rgba(239, 35, 60, 1)',
+          'rgba(255, 170, 0, 1)',
+          'rgba(67, 97, 238, 1)',
+          'rgba(56, 176, 0, 1)',
+          'rgba(151, 117, 250, 1)',
+          'rgba(76, 201, 240, 1)'
+        ],
+        borderWidth: 1
+      }]
+    };
+
+    const monthlyTrendData = {
+      labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil'],
+      datasets: [{
+        label: 'Incidents',
+        data: [12, 19, 3, 5, 8, 15, 7],
+        fill: true,
+        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+        borderColor: 'rgba(67, 97, 238, 1)',
+        tension: 0.4,
+        pointBackgroundColor: 'rgba(67, 97, 238, 1)'
+      }, {
+        label: 'Actions préventives',
+        data: [5, 10, 8, 12, 15, 10, 14],
+        fill: true,
+        backgroundColor: 'rgba(56, 176, 0, 0.1)',
+        borderColor: 'rgba(56, 176, 0, 1)',
+        tension: 0.4,
+        pointBackgroundColor: 'rgba(56, 176, 0, 1)'
+      }]
+    };
+
+    const severityData = {
+      labels: ['Faible', 'Moyen', 'Élevé', 'Critique'],
+      datasets: [{
+        data: [15, 10, 5, 2],
+        backgroundColor: [
+          'rgba(56, 176, 0, 0.7)',
+          'rgba(255, 170, 0, 0.7)',
+          'rgba(239, 35, 60, 0.7)',
+          'rgba(139, 0, 0, 0.7)'
+        ],
+        borderColor: [
+          'rgba(56, 176, 0, 1)',
+          'rgba(255, 170, 0, 1)',
+          'rgba(239, 35, 60, 1)',
+          'rgba(139, 0, 0, 1)'
+        ],
+        borderWidth: 1
+      }]
+    };
+
+    // Initialize charts
+    window.onload = function() {
+      // Sector Chart (Bar)
+      const sectorCtx = document.getElementById('sectorChart').getContext('2d');
+      new Chart(sectorCtx, {
+        type: 'bar',
+        data: sectorData,
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+
+      // Incident Type Chart (Doughnut)
+      const incidentTypeCtx = document.getElementById('incidentTypeChart').getContext('2d');
+      new Chart(incidentTypeCtx, {
+        type: 'doughnut',
+        data: incidentTypeData,
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          },
+          cutout: '70%'
+        }
+      });
+
+      // Monthly Trend Chart (Line)
+      const monthlyTrendCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+      new Chart(monthlyTrendCtx, {
+        type: 'line',
+        data: monthlyTrendData,
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top'
+            }
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+
+      // Severity Chart (Pie)
+      const severityCtx = document.getElementById('severityChart').getContext('2d');
+      new Chart(severityCtx, {
+        type: 'pie',
+        data: severityData,
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    };
+
+    // Simulate data updates (in a real app, this would come from API)
+    setInterval(() => {
+      // This is just for demo purposes
+      const randomIncident = Math.floor(Math.random() * 5) + 1;
+      if (randomIncident === 3) {
+        showNotification('Nouvel incident signalé dans l\'atelier B');
+      }
+    }, 10000);
+
+    function showNotification(message) {
+      const notifBadge = document.querySelector('.badge.bg-danger');
+      let count = parseInt(notifBadge.textContent);
+      notifBadge.textContent = count + 1;
+      
+      // Create toast notification
+      const toast = document.createElement('div');
+      toast.className = 'position-fixed bottom-0 end-0 p-3';
+      toast.style.zIndex = '1100';
+      toast.innerHTML = `
+        <div class="toast show" role="alert">
+          <div class="toast-header bg-danger text-white">
+            <strong class="me-auto">Alerte QHSE</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+          </div>
+          <div class="toast-body">
+            ${message}
+          </div>
+        </div>
+      `;
+      document.body.appendChild(toast);
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        toast.remove();
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
