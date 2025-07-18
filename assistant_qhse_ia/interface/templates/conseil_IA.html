@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Conseils IA - Assistant QHSE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- CDNs -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --primary-light: #4cc9f0;
+      --secondary-color: #3f37c9;
+      --danger-color: #ef233c;
+      --warning-color: #ffaa00;
+      --success-color: #38b000;
+      --dark-color: #1a1a2e;
+    }
+    
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 100%);
+      color: white;
+      min-height: 100vh;
+    }
+    
+    .risk-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+    
+    .risk-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .risk-card.high {
+      border-left: 4px solid var(--danger-color);
+    }
+    
+    .risk-card.medium {
+      border-left: 4px solid var(--warning-color);
+    }
+    
+    .risk-card.low {
+      border-left: 4px solid var(--success-color);
+    }
+    
+    .risk-badge {
+      padding: 3px 10px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .risk-high { background: rgba(239, 35, 60, 0.2); color: var(--danger-color); }
+    .risk-medium { background: rgba(255, 170, 0, 0.2); color: var(--warning-color); }
+    .risk-low { background: rgba(56, 176, 0, 0.2); color: var(--success-color); }
+    
+    .solution-card {
+      background: rgba(67, 97, 238, 0.1);
+      border-radius: 10px;
+      border: 1px solid rgba(67, 97, 238, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .solution-card:hover {
+      background: rgba(67, 97, 238, 0.2);
+      transform: scale(1.02);
+    }
+    
+    .ai-recommendation {
+      position: relative;
+      background: rgba(76, 201, 240, 0.1);
+      border-left: 3px solid var(--primary-light);
+    }
+    
+    .pulse-animation {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(67, 97, 238, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+    }
+    
+    .nav-pills .nav-link.active {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    }
+    
+    .nav-pills .nav-link {
+      color: white;
+      border-radius: 50px;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <div class="row mb-4">
+      <div class="col-12 text-center">
+        <h1 class="mb-3">
+          <i class="bi bi-robot text-primary"></i> Conseils Intelligents QHSE
+        </h1>
+        <p class="lead">Recommandations personnalisées générées par notre IA</p>
+      </div>
+    </div>
+    
+    <div class="row">
+      <!-- Navigation -->
+      <div class="col-lg-3 mb-4">
+        <div class="risk-card p-3 sticky-top" style="top: 20px;">
+          <h5 class="mb-3"><i class="bi bi-filter-circle"></i> Filtres</h5>
+          
+          <ul class="nav nav-pills flex-column" id="riskTabs">
+            <li class="nav-item">
+              <a class="nav-link active" href="#" data-bs-toggle="pill" data-risk="all">
+                <i class="bi bi-collection"></i> Tous les risques
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-bs-toggle="pill" data-risk="high">
+                <i class="bi bi-exclamation-triangle-fill text-danger"></i> Risques élevés
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-bs-toggle="pill" data-risk="medium">
+                <i class="bi bi-exclamation-triangle text-warning"></i> Risques moyens
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-bs-toggle="pill" data-risk="low">
+                <i class="bi bi-check-circle text-success"></i> Risques faibles
+              </a>
+            </li>
+          </ul>
+          
+          <hr>
+          
+          <h5 class="mb-3"><i class="bi bi-lightbulb"></i> Suggestions IA</h5>
+          <div class="alert alert-primary">
+            <small>L'IA a détecté 3 priorités ce mois dans votre secteur</small>
+          </div>
+          
+          <div class="d-grid gap-2 mt-3">
+            <button class="btn btn-outline-primary btn-sm" id="generateReport">
+              <i class="bi bi-file-earmark-text"></i> Générer un rapport
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Contenu principal -->
+      <div class="col-lg-9">
+        <!-- Alertes urgentes -->
+        <div class="risk-card p-3 mb-4 high pulse-animation">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <span class="risk-badge risk-high me-2">URGENT</span>
+              <strong>Chutes en hauteur non sécurisées</strong>
+            </div>
+            <button class="btn btn-sm btn-outline-danger">Action requise</button>
+          </div>
+          <div class="mt-2">
+            <p class="mb-1">L'IA a détecté 5 incidents similaires ce mois dans le secteur BTP</p>
+            <small class="text-muted">Dernier incident: 15/07/2023 - Atelier Nord</small>
+          </div>
+        </div>
+        
+        <!-- Recommandation IA -->
+        <div class="risk-card p-0 mb-4">
+          <div class="ai-recommendation p-3">
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-robot text-primary me-2"></i>
+              <strong>Recommandation prioritaire de l'IA</strong>
+            </div>
+            <p>"Suite à l'analyse des derniers incidents, je recommande une formation urgente sur les EPI antichute pour les équipes travaillant en hauteur, avec un focus sur l'ancrage des harnais."</p>
+            <div class="d-flex">
+              <button class="btn btn-sm btn-primary me-2">
+                <i class="bi bi-check-circle"></i> Appliquer
+              </button>
+              <button class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-chat-square-text"></i> Discuter
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Liste des risques -->
+        <h4 class="mb-3"><i class="bi bi-clipboard2-pulse"></i> Dernières analyses</h4>
+        
+        <!-- Risque 1 -->
+        <div class="risk-card p-3 mb-3 high" data-risk-level="high">
+          <div class="d-flex justify-content-between">
+            <div>
+              <span class="risk-badge risk-high me-2">ÉLEVÉ</span>
+              <strong>Manipulation de produits chimiques sans EPI</strong>
+            </div>
+            <small class="text-muted">12/07/2023</small>
+          </div>
+          <div class="mt-2">
+            <p>Secteur: <span class="text-warning">Laboratoire</span> | Poste: <span class="text-warning">Technicien de surface</span></p>
+            
+            <div class="solution-card p-3 mt-2">
+              <h6><i class="bi bi-shield-check text-success"></i> Solution proposée</h6>
+              <ul class="mb-0">
+                <li>Fournir des gants nitrile et masques FFP2</li>
+                <li>Former à la lecture des Fiches de Données Sécurité</li>
+                <li>Installer des stations de lavage oculaire</li>
+              </ul>
+            </div>
+            
+            <div class="d-flex mt-3">
+              <button class="btn btn-sm btn-outline-success me-2">
+                <i class="bi bi-check"></i> Marquer comme résolu
+              </button>
+              <button class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-graph-up"></i> Voir statistiques
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Risque 2 -->
+        <div class="risk-card p-3 mb-3 medium" data-risk-level="medium">
+          <div class="d-flex justify-content-between">
+            <div>
+              <span class="risk-badge risk-medium me-2">MOYEN</span>
+              <strong>Postures inadaptées causant des TMS</strong>
+            </div>
+            <small class="text-muted">10/07/2023</small>
+          </div>
+          <div class="mt-2">
+            <p>Secteur: <span class="text-warning">Atelier</span> | Poste: <span class="text-warning">Opérateur de production</span></p>
+            
+            <div class="solution-card p-3 mt-2">
+              <h6><i class="bi bi-shield-check text-success"></i> Solution proposée</h6>
+              <ul class="mb-0">
+                <li>Aménager les postes de travail ergonomiques</li>
+                <li>Former aux bonnes postures</li>
+                <li>Implémenter des pauses actives toutes les 2h</li>
+              </ul>
+            </div>
+            
+            <div class="progress mt-3" style="height: 5px;">
+              <div class="progress-bar bg-warning" style="width: 65%;"></div>
+            </div>
+            <small class="text-muted">65% des mesures appliquées</small>
+          </div>
+        </div>
+        
+        <!-- Risque 3 -->
+        <div class="risk-card p-3 mb-3 low" data-risk-level="low">
+          <div class="d-flex justify-content-between">
+            <div>
+              <span class="risk-badge risk-low me-2">FAIBLE</span>
+              <strong>Signalisation manquante dans les couloirs</strong>
+            </div>
+            <small class="text-muted">05/07/2023</small>
+          </div>
+          <div class="mt-2">
+            <p>Secteur: <span class="text-warning">Bureaux</span> | Localisation: <span class="text-warning">Couloir principal</span></p>
+            
+            <div class="solution-card p-3 mt-2">
+              <h6><i class="bi bi-shield-check text-success"></i> Solution proposée</h6>
+              <ul class="mb-0">
+                <li>Installer des panneaux de sortie de secours</li>
+                <li>Marquage au sol des voies d'évacuation</li>
+                <li>Vérification trimestrielle</li>
+              </ul>
+            </div>
+            
+            <div class="alert alert-success mt-3 mb-0 p-2">
+              <i class="bi bi-check-circle"></i> <small>Résolu le 08/07/2023 par J. Dupont</small>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Nouvelle analyse -->
+        <div class="risk-card p-3 mt-5">
+          <h5><i class="bi bi-plus-circle"></i> Nouvelle analyse</h5>
+          <p class="text-muted">Obtenez des recommandations personnalisées pour une situation spécifique</p>
+          <div class="d-grid">
+            <a href="form.html" class="btn btn-primary">
+              <i class="bi bi-clipboard-plus"></i> Démarrer une analyse
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Filtrage des risques
+      const riskTabs = document.querySelectorAll('[data-risk]');
+      riskTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          const riskLevel = this.getAttribute('data-risk');
+          
+          document.querySelectorAll('.risk-card[data-risk-level]').forEach(card => {
+            if (riskLevel === 'all') {
+              card.style.display = 'block';
+            } else {
+              card.style.display = card.getAttribute('data-risk-level') === riskLevel ? 'block' : 'none';
+            }
+          });
+        });
+      });
+      
+      // Génération de rapport
+      document.getElementById('generateReport').addEventListener('click', function() {
+        const btn = this;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Génération...';
+        
+        setTimeout(() => {
+          btn.innerHTML = '<i class="bi bi-file-earmark-text"></i> Rapport généré';
+          alert('Rapport généré avec succès! Consultez votre espace documents.');
+          setTimeout(() => {
+            btn.innerHTML = '<i class="bi bi-file-earmark-text"></i> Générer un rapport';
+          }, 2000);
+        }, 1500);
+      });
+      
+      // Chargement des données depuis le localStorage
+      function loadRiskData() {
+        const lastAssessment = localStorage.getItem('lastRiskAssessment');
+        if (lastAssessment) {
+          const data = JSON.parse(lastAssessment);
+          console.log('Dernière analyse chargée:', data);
+          // Ici vous pourriez ajouter dynamiquement une nouvelle carte de risque
+        }
+      }
+      
+      loadRiskData();
+    });
+  </script>
+</body>
+</html>
