@@ -80,12 +80,12 @@ def open_pages():
     print("\n🌐 Ouverture des pages dans le navigateur...")
     
     pages = [
-        ("Dashboard Principal", "http://localhost:5000/dashboard"),
-        ("Dashboard Animé", "http://localhost:5000/dashboard_animated"),
-        ("Connexion Animée", "http://localhost:5000/login_animated"),
-        ("Formulaire Animé", "http://localhost:5000/form_animated"),
-        ("Chatbot", "http://localhost:5000/chatbot"),
-        ("Formulaire", "http://localhost:5000/form")
+        ("Dashboard Principal", "http://localhost:5001/dashboard"),
+        ("Dashboard Animé", "http://localhost:5001/dashboard_animated"),
+        ("Connexion Animée", "http://localhost:5001/login_animated"),
+        ("Formulaire Animé", "http://localhost:5001/form_animated"),
+        ("Chatbot", "http://localhost:5001/chatbot"),
+        ("Formulaire", "http://localhost:5001/form")
     ]
     
     for name, url in pages:
@@ -128,13 +128,13 @@ def main():
         print("\n" + "="*60)
         print("✅ DÉMONSTRATION PRÊTE!")
         print("="*60)
-        print("🌐 Le serveur est accessible sur: http://localhost:5000")
-        print("📊 Dashboard: http://localhost:5000/dashboard")
-        print("🎨 Dashboard Animé: http://localhost:5000/dashboard_animated")
-        print("🔐 Connexion Animée: http://localhost:5000/login_animated")
-        print("📋 Formulaire Animé: http://localhost:5000/form_animated")
-        print("🤖 Chatbot: http://localhost:5000/chatbot")
-        print("📋 Formulaire: http://localhost:5000/form")
+        print("🌐 Le serveur est accessible sur: http://localhost:5001")
+        print("📊 Dashboard: http://localhost:5001/dashboard")
+        print("🎨 Dashboard Animé: http://localhost:5001/dashboard_animated")
+        print("🔐 Connexion Animée: http://localhost:5001/login_animated")
+        print("📋 Formulaire Animé: http://localhost:5001/form_animated")
+        print("🤖 Chatbot: http://localhost:5001/chatbot")
+        print("📋 Formulaire: http://localhost:5001/form")
         print("="*60)
         print("💡 Appuyez sur Ctrl+C pour arrêter le serveur")
         print("="*60)
