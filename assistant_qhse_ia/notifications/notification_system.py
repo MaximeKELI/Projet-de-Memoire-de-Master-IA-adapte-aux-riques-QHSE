@@ -6,8 +6,8 @@ Gestion des alertes, escalades et communications d'urgence
 import smtplib
 import sqlite3
 from datetime import datetime, timedelta
-from email.mime.text import MimeText
-from email.mime.multipart import MimeMultipart
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from flask import Flask
 import json
 import requests

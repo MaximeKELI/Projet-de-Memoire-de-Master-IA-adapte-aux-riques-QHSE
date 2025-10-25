@@ -1227,7 +1227,6 @@ if __name__ == '__main__':
     os.makedirs('assistant_qhse_ia/mobile', exist_ok=True)
     
     # Initialiser le système de notifications
-    global notification_system
     notification_system = init_notification_system(app)
     
     print("🚀 Assistant QHSE IA - Système complet démarré!")
