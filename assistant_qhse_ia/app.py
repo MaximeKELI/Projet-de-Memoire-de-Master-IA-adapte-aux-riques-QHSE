@@ -1170,6 +1170,25 @@ def generate_recommendations(prediction, data):
     
     return recommendations
 
+# ==================== ROUTES ANIMÉES ====================
+
+@app.route('/dashboard_animated')
+@login_required
+def dashboard_animated():
+    """Tableau de bord avec animations avancées"""
+    return render_template('dashboard_animated.html')
+
+@app.route('/login_animated')
+def login_animated():
+    """Page de connexion avec animations"""
+    return render_template('login_animated.html')
+
+@app.route('/form_animated')
+@login_required
+def form_animated():
+    """Formulaire d'analyse avec animations"""
+    return render_template('form_animated.html')
+
 # ==================== LANCEMENT DE L'APPLICATION ====================
 
 if __name__ == '__main__':

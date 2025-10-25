@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion QHSE IA - Système Avancé</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/advanced-animations.css') }}" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+        
+        .login-container {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(0, 242, 254, 0.1) 50%, transparent 70%);
+            animation: shimmer 3s infinite;
+            pointer-events: none;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease infinite;
+            margin-bottom: 10px;
+        }
+        
+        .login-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            animation: fadeInUp 0.8s ease;
+        }
+        
+        .ai-brain {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+        }
+        
+        .ai-brain::before {
+            content: '🧠';
+            font-size: 3rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .ai-brain::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 100px;
+            border: 2px solid #00f2fe;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: spin 3s linear infinite;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .form-control {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .form-control:focus {
+            border-color: #00f2fe;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus + .input-icon {
+            color: #00f2fe;
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn-login:hover::before {
+            left: 100%;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-login:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+        
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: rgba(0, 242, 254, 0.3);
+            border-radius: 50%;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .floating-element:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .floating-element:nth-child(2) { top: 60%; right: 10%; animation-delay: 1s; }
+        .floating-element:nth-child(3) { top: 40%; left: 50%; animation-delay: 2s; }
+        .floating-element:nth-child(4) { bottom: 20%; left: 20%; animation-delay: 1.5s; }
+        .floating-element:nth-child(5) { top: 80%; right: 30%; animation-delay: 0.5s; }
+        .floating-element:nth-child(6) { top: 30%; right: 20%; animation-delay: 2.5s; }
+        .floating-element:nth-child(7) { bottom: 40%; right: 40%; animation-delay: 1.8s; }
+        .floating-element:nth-child(8) { top: 70%; left: 30%; animation-delay: 3s; }
+        
+        .cyber-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 242, 254, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 254, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            animation: drift 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        .neon-border {
+            position: relative;
+        }
+        
+        .neon-border::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00f2fe, #4facfe, #00f2fe);
+            border-radius: 12px;
+            z-index: -1;
+            animation: gradientShift 2s ease infinite;
+        }
+        
+        .loading-spinner {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+        
+        .spinner-ring {
+            width: 30px;
+            height: 30px;
+            border: 3px solid transparent;
+            border-top: 3px solid #00f2fe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: absolute;
+        }
+        
+        .spinner-ring:nth-child(2) {
+            width: 20px;
+            height: 20px;
+            top: 5px;
+            left: 5px;
+            animation-delay: 0.2s;
+        }
+        
+        .spinner-ring:nth-child(3) {
+            width: 10px;
+            height: 10px;
+            top: 10px;
+            left: 10px;
+            animation-delay: 0.4s;
+        }
+        
+        .error-message {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            animation: fadeInUp 0.5s ease;
+        }
+        
+        .success-message {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            animation: fadeInUp 0.5s ease;
+        }
+        
+        .typewriter {
+            overflow: hidden;
+            border-right: 2px solid #00f2fe;
+            white-space: nowrap;
+            animation: typewriter 3s steps(40, end), blink 0.75s step-end infinite;
+        }
+        
+        .pulse-effect {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .glow-effect {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        .neon-text {
+            color: #00f2fe;
+            text-shadow: 
+                0 0 5px #00f2fe,
+                0 0 10px #00f2fe,
+                0 0 15px #00f2fe,
+                0 0 20px #00f2fe;
+            animation: neonGlow 2s ease-in-out infinite alternate;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Grille cyber -->
+    <div class="cyber-grid"></div>
+    
+    <!-- Éléments flottants -->
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+    
+    <!-- Container principal -->
+    <div class="login-container">
+        <div class="login-card animate-scaleIn">
+            <!-- En-tête -->
+            <div class="login-header">
+                <div class="ai-brain"></div>
+                <h1 class="login-title animate-fadeInUp">
+                    <i class="fas fa-shield-alt me-2"></i>
+                    QHSE IA
+                </h1>
+                <p class="login-subtitle animate-fadeInUp animate-delay-1">
+                    <span class="typewriter">Système Avancé de Sécurité</span>
+                </p>
+            </div>
+            
+            <!-- Formulaire de connexion -->
+            <form id="loginForm" class="animate-fadeInUp animate-delay-2">
+                <div class="form-group">
+                    <label for="username" class="form-label">
+                        <i class="fas fa-user me-2"></i>
+                        Nom d'utilisateur
+                    </label>
+                    <div class="neon-border">
+                        <input type="text" 
+                               class="form-control" 
+                               id="username" 
+                               name="username" 
+                               placeholder="Entrez votre nom d'utilisateur"
+                               required>
+                        <i class="fas fa-user input-icon"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        <i class="fas fa-lock me-2"></i>
+                        Mot de passe
+                    </label>
+                    <div class="neon-border">
+                        <input type="password" 
+                               class="form-control" 
+                               id="password" 
+                               name="password" 
+                               placeholder="Entrez votre mot de passe"
+                               required>
+                        <i class="fas fa-lock input-icon"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="remember">
+                        <label class="form-check-label" for="remember">
+                            Se souvenir de moi
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-login animate-bounceIn animate-delay-3">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Se connecter
+                </button>
+                
+                <!-- Messages d'erreur/succès -->
+                <div id="messageContainer"></div>
+            </form>
+            
+            <!-- Liens supplémentaires -->
+            <div class="text-center mt-4 animate-fadeInUp animate-delay-4">
+                <a href="#" class="text-decoration-none me-3">
+                    <i class="fas fa-key me-1"></i>
+                    Mot de passe oublié?
+                </a>
+                <a href="#" class="text-decoration-none">
+                    <i class="fas fa-user-plus me-1"></i>
+                    Créer un compte
+                </a>
+            </div>
+            
+            <!-- Spinner de chargement -->
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/advanced-effects.js') }}"></script>
+    <script>
+        // Initialisation des effets avancés
+        document.addEventListener('DOMContentLoaded', function() {
+            const effects = new AdvancedEffects();
+            
+            // Gestion du formulaire de connexion
+            const loginForm = document.getElementById('loginForm');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const messageContainer = document.getElementById('messageContainer');
+            
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Afficher le spinner
+                showLoading();
+                
+                // Récupérer les données du formulaire
+                const formData = new FormData(loginForm);
+                const username = formData.get('username');
+                const password = formData.get('password');
+                
+                try {
+                    // Simuler une requête de connexion
+                    await simulateLogin(username, password);
+                    
+                    // Afficher le message de succès
+                    showMessage('Connexion réussie! Redirection en cours...', 'success');
+                    
+                    // Rediriger après un délai
+                    setTimeout(() => {
+                        window.location.href = '/dashboard_animated';
+                    }, 2000);
+                    
+                } catch (error) {
+                    // Afficher le message d'erreur
+                    showMessage('Nom d\'utilisateur ou mot de passe incorrect', 'error');
+                } finally {
+                    // Masquer le spinner
+                    hideLoading();
+                }
+            });
+            
+            // Fonction pour simuler la connexion
+            async function simulateLogin(username, password) {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        // Simulation simple (en production, utiliser une vraie API)
+                        if (username === 'admin' && password === 'admin') {
+                            resolve();
+                        } else {
+                            reject(new Error('Identifiants incorrects'));
+                        }
+                    }, 2000);
+                });
+            }
+            
+            // Fonction pour afficher le spinner
+            function showLoading() {
+                loadingSpinner.style.display = 'block';
+                loginForm.style.opacity = '0.5';
+                loginForm.style.pointerEvents = 'none';
+            }
+            
+            // Fonction pour masquer le spinner
+            function hideLoading() {
+                loadingSpinner.style.display = 'none';
+                loginForm.style.opacity = '1';
+                loginForm.style.pointerEvents = 'auto';
+            }
+            
+            // Fonction pour afficher les messages
+            function showMessage(message, type) {
+                messageContainer.innerHTML = `
+                    <div class="${type === 'error' ? 'error-message' : 'success-message'}">
+                        <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'} me-2"></i>
+                        ${message}
+                    </div>
+                `;
+                
+                // Masquer le message après 5 secondes
+                setTimeout(() => {
+                    messageContainer.innerHTML = '';
+                }, 5000);
+            }
+            
+            // Effets sur les champs de saisie
+            const inputs = document.querySelectorAll('.form-control');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('glow-effect');
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('glow-effect');
+                });
+            });
+            
+            // Animation de frappe pour le titre
+            const titleElement = document.querySelector('.login-title');
+            const originalText = titleElement.textContent;
+            titleElement.textContent = '';
+            titleElement.classList.add('typewriter');
+            
+            let i = 0;
+            const typeInterval = setInterval(() => {
+                if (i < originalText.length) {
+                    titleElement.textContent += originalText.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(typeInterval);
+                    // Faire clignoter le curseur
+                    setInterval(() => {
+                        titleElement.style.borderRight = titleElement.style.borderRight === 'none' ? '2px solid #00f2fe' : 'none';
+                    }, 500);
+                }
+            }, 100);
+            
+            // Afficher une notification de bienvenue
+            setTimeout(() => {
+                effects.showNotification('Bienvenue dans le système QHSE IA!', 'info');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

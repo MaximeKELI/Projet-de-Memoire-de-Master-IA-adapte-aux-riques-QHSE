@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse de Risque QHSE - Système Avancé</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/advanced-animations.css') }}" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin: 20px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(0, 242, 254, 0.1) 50%, transparent 70%);
+            animation: shimmer 3s infinite;
+            pointer-events: none;
+        }
+        
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease infinite;
+            margin-bottom: 10px;
+        }
+        
+        .form-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            animation: fadeInUp 0.8s ease;
+        }
+        
+        .ai-brain {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+        }
+        
+        .ai-brain::before {
+            content: '🧠';
+            font-size: 3rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .ai-brain::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 100px;
+            border: 2px solid #00f2fe;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: spin 3s linear infinite;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+            animation: fadeInLeft 0.6s ease;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            position: relative;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #00f2fe;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .neon-border {
+            position: relative;
+        }
+        
+        .neon-border::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00f2fe, #4facfe, #00f2fe);
+            border-radius: 12px;
+            z-index: -1;
+            animation: gradientShift 2s ease infinite;
+        }
+        
+        .btn-analyze {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-analyze::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn-analyze:hover::before {
+            left: 100%;
+        }
+        
+        .btn-analyze:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-analyze:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .results-container {
+            background: rgba(0, 242, 254, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid rgba(0, 242, 254, 0.3);
+            display: none;
+        }
+        
+        .results-container.show {
+            display: block;
+            animation: fadeInUp 0.6s ease;
+        }
+        
+        .risk-level {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .risk-low {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        .risk-medium {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+        
+        .risk-high {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+        
+        .risk-critical {
+            background: linear-gradient(135deg, #ef233c 0%, #d90429 100%);
+            color: white;
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        .recommendation {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #00f2fe;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            animation: slideInFromLeft 0.6s ease;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .spinner-ring {
+            width: 40px;
+            height: 40px;
+            border: 4px solid transparent;
+            border-top: 4px solid #00f2fe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: rgba(0, 242, 254, 0.3);
+            border-radius: 50%;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .floating-element:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .floating-element:nth-child(2) { top: 60%; right: 10%; animation-delay: 1s; }
+        .floating-element:nth-child(3) { top: 40%; left: 50%; animation-delay: 2s; }
+        .floating-element:nth-child(4) { bottom: 20%; left: 20%; animation-delay: 1.5s; }
+        .floating-element:nth-child(5) { top: 80%; right: 30%; animation-delay: 0.5s; }
+        
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+        
+        .progress-step::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            right: -50%;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 1;
+        }
+        
+        .progress-step:last-child::before {
+            display: none;
+        }
+        
+        .progress-step.active::before {
+            background: linear-gradient(90deg, #00f2fe, #4facfe);
+        }
+        
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+        
+        .progress-step.active .step-number {
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .step-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .progress-step.active .step-label {
+            color: #00f2fe;
+            font-weight: 600;
+        }
+        
+        .typewriter {
+            overflow: hidden;
+            border-right: 2px solid #00f2fe;
+            white-space: nowrap;
+            animation: typewriter 3s steps(40, end), blink 0.75s step-end infinite;
+        }
+        
+        .pulse-effect {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .glow-effect {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        .neon-text {
+            color: #00f2fe;
+            text-shadow: 
+                0 0 5px #00f2fe,
+                0 0 10px #00f2fe,
+                0 0 15px #00f2fe,
+                0 0 20px #00f2fe;
+            animation: neonGlow 2s ease-in-out infinite alternate;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Éléments flottants -->
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+    
+    <!-- Container principal -->
+    <div class="container-fluid">
+        <div class="form-container animate-fadeInUp">
+            <!-- En-tête -->
+            <div class="form-header">
+                <div class="ai-brain"></div>
+                <h1 class="form-title animate-fadeInUp">
+                    <i class="fas fa-clipboard-list me-2"></i>
+                    Analyse de Risque QHSE
+                </h1>
+                <p class="form-subtitle animate-fadeInUp animate-delay-1">
+                    <span class="typewriter">Intelligence Artificielle pour la Sécurité</span>
+                </p>
+            </div>
+            
+            <!-- Étapes de progression -->
+            <div class="progress-steps animate-fadeInUp animate-delay-2">
+                <div class="progress-step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Informations</div>
+                </div>
+                <div class="progress-step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Analyse</div>
+                </div>
+                <div class="progress-step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Résultats</div>
+                </div>
+            </div>
+            
+            <!-- Formulaire -->
+            <form id="riskAnalysisForm" class="animate-fadeInUp animate-delay-3">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="secteur" class="form-label">
+                                <i class="fas fa-building me-2"></i>
+                                Secteur d'activité
+                            </label>
+                            <div class="neon-border">
+                                <select class="form-select" id="secteur" name="secteur" required>
+                                    <option value="">Sélectionnez un secteur</option>
+                                    <option value="1">Production</option>
+                                    <option value="2">Maintenance</option>
+                                    <option value="3">Logistique</option>
+                                    <option value="4">Administration</option>
+                                    <option value="5">R&D</option>
+                                    <option value="6">Qualité</option>
+                                    <option value="7">Sécurité</option>
+                                    <option value="8">Autres</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="incident" class="form-label">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Type d'incident
+                            </label>
+                            <div class="neon-border">
+                                <select class="form-select" id="incident" name="incident" required>
+                                    <option value="">Sélectionnez un type</option>
+                                    <option value="1">Chute</option>
+                                    <option value="2">Coupure</option>
+                                    <option value="3">Brûlure</option>
+                                    <option value="4">Intoxication</option>
+                                    <option value="5">Électrocution</option>
+                                    <option value="6">Écrasement</option>
+                                    <option value="7">Exposition</option>
+                                    <option value="8">Autres</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="poste" class="form-label">
+                                <i class="fas fa-user-tie me-2"></i>
+                                Poste de travail
+                            </label>
+                            <div class="neon-border">
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="poste" 
+                                       name="poste" 
+                                       placeholder="Ex: Opérateur machine"
+                                       required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="probabilite" class="form-label">
+                                <i class="fas fa-percentage me-2"></i>
+                                Probabilité d'occurrence
+                            </label>
+                            <div class="neon-border">
+                                <select class="form-select" id="probabilite" name="probabilite" required>
+                                    <option value="">Sélectionnez une probabilité</option>
+                                    <option value="1">Très faible (1-10%)</option>
+                                    <option value="2">Faible (11-30%)</option>
+                                    <option value="3">Moyenne (31-60%)</option>
+                                    <option value="4">Élevée (61-80%)</option>
+                                    <option value="5">Très élevée (81-100%)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="probValue" class="form-label">
+                                <i class="fas fa-chart-line me-2"></i>
+                                Valeur de probabilité (%)
+                            </label>
+                            <div class="neon-border">
+                                <input type="range" 
+                                       class="form-range" 
+                                       id="probValue" 
+                                       name="probValue" 
+                                       min="1" 
+                                       max="100" 
+                                       value="50"
+                                       oninput="updateProbValue(this.value)">
+                                <div class="text-center mt-2">
+                                    <span class="badge bg-primary" id="probDisplay">50%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="heure" class="form-label">
+                                <i class="fas fa-clock me-2"></i>
+                                Heure de l'incident
+                            </label>
+                            <div class="neon-border">
+                                <input type="time" 
+                                       class="form-control" 
+                                       id="heure" 
+                                       name="heure">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description" class="form-label">
+                        <i class="fas fa-file-alt me-2"></i>
+                        Description détaillée
+                    </label>
+                    <div class="neon-border">
+                        <textarea class="form-control" 
+                                  id="description" 
+                                  name="description" 
+                                  rows="4" 
+                                  placeholder="Décrivez la situation de risque en détail..."
+                                  required></textarea>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-analyze animate-bounceIn animate-delay-4">
+                    <i class="fas fa-brain me-2"></i>
+                    Analyser avec l'IA
+                </button>
+                
+                <!-- Spinner de chargement -->
+                <div class="loading-spinner" id="loadingSpinner">
+                    <div class="spinner-ring"></div>
+                    <p class="mt-3 text-center">
+                        <i class="fas fa-robot me-2"></i>
+                        L'IA analyse votre situation...
+                    </p>
+                </div>
+            </form>
+            
+            <!-- Résultats -->
+            <div class="results-container" id="resultsContainer">
+                <h4 class="gradient-text mb-4">
+                    <i class="fas fa-chart-pie me-2"></i>
+                    Résultats de l'Analyse IA
+                </h4>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="risk-level" id="riskLevel">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            Niveau de Risque
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-center">
+                            <div class="counter" id="riskScore" data-target="0">0</div>
+                            <div class="text-muted">Score de Risque</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="recommendations" id="recommendations">
+                    <h5 class="neon-text mb-3">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        Recommandations IA
+                    </h5>
+                    <div id="recommendationsList"></div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button class="btn btn-primary me-2" onclick="exportResults()">
+                        <i class="fas fa-download me-2"></i>
+                        Exporter
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetForm()">
+                        <i class="fas fa-redo me-2"></i>
+                        Nouvelle Analyse
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/advanced-effects.js') }}"></script>
+    <script>
+        // Initialisation des effets avancés
+        document.addEventListener('DOMContentLoaded', function() {
+            const effects = new AdvancedEffects();
+            
+            // Gestion du formulaire
+            const form = document.getElementById('riskAnalysisForm');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Mettre à jour les étapes
+                updateProgressSteps(2);
+                
+                // Afficher le spinner
+                showLoading();
+                
+                try {
+                    // Simuler l'analyse IA
+                    const results = await simulateAIAnalysis();
+                    
+                    // Mettre à jour les étapes
+                    updateProgressSteps(3);
+                    
+                    // Afficher les résultats
+                    displayResults(results);
+                    
+                } catch (error) {
+                    console.error('Erreur analyse:', error);
+                    effects.showNotification('Erreur lors de l\'analyse', 'error');
+                } finally {
+                    hideLoading();
+                }
+            });
+            
+            // Mise à jour de la valeur de probabilité
+            window.updateProbValue = function(value) {
+                document.getElementById('probDisplay').textContent = value + '%';
+            };
+            
+            // Fonction pour simuler l'analyse IA
+            async function simulateAIAnalysis() {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        const formData = new FormData(form);
+                        const secteur = formData.get('secteur');
+                        const incident = formData.get('incident');
+                        const probabilite = formData.get('probabilite');
+                        const probValue = formData.get('probValue');
+                        
+                        // Simulation des résultats
+                        const riskScore = Math.floor(Math.random() * 100);
+                        const riskLevel = getRiskLevel(riskScore);
+                        const recommendations = generateRecommendations(incident, riskScore);
+                        
+                        resolve({
+                            riskScore,
+                            riskLevel,
+                            recommendations
+                        });
+                    }, 3000);
+                });
+            }
+            
+            // Déterminer le niveau de risque
+            function getRiskLevel(score) {
+                if (score < 25) return { level: 'low', label: 'Faible', class: 'risk-low' };
+                if (score < 50) return { level: 'medium', label: 'Moyen', class: 'risk-medium' };
+                if (score < 75) return { level: 'high', label: 'Élevé', class: 'risk-high' };
+                return { level: 'critical', label: 'Critique', class: 'risk-critical' };
+            }
+            
+            // Générer des recommandations
+            function generateRecommendations(incidentType, score) {
+                const recommendations = {
+                    '1': ['Portez un casque de sécurité', 'Vérifiez les surfaces de travail', 'Utilisez des chaussures antidérapantes'],
+                    '2': ['Portez des gants de protection', 'Vérifiez l\'état des outils', 'Formation à l\'utilisation sécurisée'],
+                    '3': ['Portez des vêtements de protection', 'Vérifiez les températures', 'Formation aux premiers secours'],
+                    '4': ['Portez un masque de protection', 'Vérifiez la ventilation', 'Formation aux produits chimiques'],
+                    '5': ['Vérifiez l\'isolation électrique', 'Portez des équipements isolants', 'Formation électrique'],
+                    '6': ['Vérifiez les machines', 'Portez des équipements de protection', 'Formation à la sécurité machine'],
+                    '7': ['Portez des équipements de protection', 'Vérifiez les niveaux d\'exposition', 'Formation aux risques'],
+                    '8': ['Évaluez les risques spécifiques', 'Portez les EPI appropriés', 'Formation adaptée']
+                };
+                
+                return recommendations[incidentType] || ['Évaluez les risques', 'Portez les EPI', 'Formation sécurité'];
+            }
+            
+            // Afficher les résultats
+            function displayResults(results) {
+                const riskLevelElement = document.getElementById('riskLevel');
+                const riskScoreElement = document.getElementById('riskScore');
+                const recommendationsList = document.getElementById('recommendationsList');
+                
+                // Mettre à jour le niveau de risque
+                riskLevelElement.className = `risk-level ${results.riskLevel.class}`;
+                riskLevelElement.innerHTML = `
+                    <i class="fas fa-shield-alt me-2"></i>
+                    Risque ${results.riskLevel.label}
+                `;
+                
+                // Animer le score
+                animateCounter(riskScoreElement, results.riskScore);
+                
+                // Afficher les recommandations
+                recommendationsList.innerHTML = '';
+                results.recommendations.forEach((rec, index) => {
+                    const recElement = document.createElement('div');
+                    recElement.className = 'recommendation';
+                    recElement.style.animationDelay = `${index * 0.2}s`;
+                    recElement.innerHTML = `
+                        <i class="fas fa-check-circle me-2 text-success"></i>
+                        ${rec}
+                    `;
+                    recommendationsList.appendChild(recElement);
+                });
+                
+                // Afficher le container des résultats
+                resultsContainer.classList.add('show');
+                
+                // Afficher une notification
+                effects.showNotification('Analyse terminée avec succès!', 'success');
+            }
+            
+            // Animer les compteurs
+            function animateCounter(element, target) {
+                let current = 0;
+                const increment = target / 100;
+                const timer = setInterval(() => {
+                    current += increment;
+                    element.textContent = Math.floor(current);
+                    if (current >= target) {
+                        element.textContent = target;
+                        clearInterval(timer);
+                    }
+                }, 20);
+            }
+            
+            // Mettre à jour les étapes de progression
+            function updateProgressSteps(activeStep) {
+                const steps = document.querySelectorAll('.progress-step');
+                steps.forEach((step, index) => {
+                    if (index + 1 <= activeStep) {
+                        step.classList.add('active');
+                    } else {
+                        step.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Afficher le spinner
+            function showLoading() {
+                loadingSpinner.style.display = 'block';
+                form.style.opacity = '0.5';
+                form.style.pointerEvents = 'none';
+            }
+            
+            // Masquer le spinner
+            function hideLoading() {
+                loadingSpinner.style.display = 'none';
+                form.style.opacity = '1';
+                form.style.pointerEvents = 'auto';
+            }
+            
+            // Exporter les résultats
+            window.exportResults = function() {
+                const results = {
+                    riskScore: document.getElementById('riskScore').textContent,
+                    riskLevel: document.getElementById('riskLevel').textContent,
+                    recommendations: Array.from(document.querySelectorAll('.recommendation')).map(el => el.textContent.trim())
+                };
+                
+                const dataStr = JSON.stringify(results, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'analyse_risque_qhse.json';
+                link.click();
+                URL.revokeObjectURL(url);
+                
+                effects.showNotification('Résultats exportés!', 'success');
+            };
+            
+            // Réinitialiser le formulaire
+            window.resetForm = function() {
+                form.reset();
+                resultsContainer.classList.remove('show');
+                updateProgressSteps(1);
+                document.getElementById('probDisplay').textContent = '50%';
+                effects.showNotification('Formulaire réinitialisé', 'info');
+            };
+            
+            // Effets sur les champs de saisie
+            const inputs = document.querySelectorAll('.form-control, .form-select');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('glow-effect');
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('glow-effect');
+                });
+            });
+            
+            // Afficher une notification de bienvenue
+            setTimeout(() => {
+                effects.showNotification('Système d\'analyse de risque initialisé!', 'info');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
