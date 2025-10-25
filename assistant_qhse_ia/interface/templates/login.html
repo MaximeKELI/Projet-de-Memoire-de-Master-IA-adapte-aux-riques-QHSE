@@ -2,28 +2,184 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Connexion - Assistant QHSE</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Connexion - Assistant QHSE IA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- CDNs -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+  
   <style>
-    body { background-color: #eaeff1; }
-    .card { max-width: 400px; margin: auto; margin-top: 80px; padding: 30px; border-radius: 15px; }
+    :root {
+      --primary-color: #4361ee;
+      --primary-light: #4cc9f0;
+      --secondary-color: #3f37c9;
+      --dark-color: #1a1a2e;
+    }
+    
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .login-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+    
+    .login-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+    
+    .login-header h2 {
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+    
+    .login-body {
+      padding: 2rem;
+    }
+    
+    .form-control {
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 0.25rem rgba(76, 201, 240, 0.25);
+      color: white;
+    }
+    
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .btn-login {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      border: none;
+      border-radius: 50px;
+      padding: 1rem 3rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+    
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(67, 97, 238, 0.4);
+    }
+    
+    .alert {
+      border-radius: 10px;
+      border: none;
+    }
+    
+    .demo-credentials {
+      background: rgba(76, 201, 240, 0.1);
+      border: 1px solid rgba(76, 201, 240, 0.3);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
-  <div class="card shadow">
-    <h3 class="text-center mb-4">Se connecter</h3>
-    <form method="POST" action="/login">
-      <div class="mb-3">
-        <label for="username" class="form-label">Nom d'utilisateur</label>
-        <input type="text" class="form-control" name="username" required>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-4">
+        <div class="login-container">
+          <div class="login-header">
+            <i class="bi bi-shield-shaded fs-1 mb-3"></i>
+            <h2>QHSE PRO</h2>
+            <p class="mb-0">Assistant IA pour la Sécurité</p>
+          </div>
+          
+          <div class="login-body">
+            <!-- Messages flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="{{ url_for('login') }}">
+              <div class="mb-3">
+                <label for="username" class="form-label">
+                  <i class="bi bi-person me-2"></i>Nom d'utilisateur
+                </label>
+                <input type="text" class="form-control" id="username" name="username" 
+                       placeholder="Entrez votre nom d'utilisateur" required>
+              </div>
+              
+              <div class="mb-4">
+                <label for="password" class="form-label">
+                  <i class="bi bi-lock me-2"></i>Mot de passe
+                </label>
+                <input type="password" class="form-control" id="password" name="password" 
+                       placeholder="Entrez votre mot de passe" required>
+              </div>
+              
+              <button type="submit" class="btn btn-login">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
+              </button>
+            </form>
+            
+            <div class="demo-credentials">
+              <h6 class="text-primary mb-2">
+                <i class="bi bi-info-circle me-2"></i>Comptes de démonstration
+              </h6>
+              <small class="text-light">
+                <strong>Admin:</strong> admin / admin<br>
+                <strong>Manager:</strong> manager / manager<br>
+                <strong>User:</strong> user / user
+              </small>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="mb-3">
-        <label for="password" class="form-label">Mot de passe</label>
-        <input type="password" class="form-control" name="password" required>
-      </div>
-      <button type="submit" class="btn btn-success w-100">Connexion</button>
-    </form>
-    <p class="mt-3 text-center">Pas encore de compte ? <a href="/register">S'inscrire</a></p>
+    </div>
   </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Focus sur le premier champ
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('username').focus();
+    });
+    
+    // Animation du formulaire
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+      const btn = document.querySelector('.btn-login');
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Connexion...';
+      btn.disabled = true;
+    });
+  </script>
 </body>
 </html>

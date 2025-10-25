@@ -1,0 +1,48 @@
+# Requirements pour l'Assistant QHSE IA - Système Complet
+# Backend Flask
+Flask==2.3.3
+Flask-CORS==4.0.0
+Werkzeug==2.3.7
+Jinja2==3.1.2
+
+# Base de données
+sqlite3  # Inclus dans Python standard
+
+# Machine Learning et IA
+scikit-learn==1.3.0
+pandas==2.0.3
+numpy==1.24.3
+joblib==1.3.2
+
+# Notifications et communications
+requests==2.31.0
+smtplib  # Inclus dans Python standard
+
+# Reporting et visualisation
+matplotlib==3.7.2
+seaborn==0.12.2
+plotly==5.15.0
+
+# Gestion des fichiers et données
+openpyxl==3.1.2
+xlsxwriter==3.1.2
+PyPDF2==3.0.1
+
+# Sécurité et authentification
+bcrypt==4.0.1
+cryptography==41.0.3
+
+# Utilitaires
+python-dateutil==2.8.2
+pytz==2023.3
+email-validator==2.0.0
+
+# Développement et tests
+pytest==7.4.0
+pytest-flask==1.2.0
+coverage==7.2.7
+
+# Production (optionnel)
+gunicorn==21.2.0
+redis==4.6.0
+celery==5.3.1

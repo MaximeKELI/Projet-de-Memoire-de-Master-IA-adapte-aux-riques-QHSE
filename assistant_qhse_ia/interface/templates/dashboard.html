@@ -581,12 +581,12 @@
       document.querySelector('.sidebar').classList.toggle('active');
     });
 
-    // Sample data for charts (replace with real data from your backend)
-    const sectorData = {
-      labels: ['Atelier A', 'Atelier B', 'Bureaux', 'Chantier A', 'Laboratoire', 'Entrepôt'],
+    // Load data from API
+    let sectorData = {
+      labels: [],
       datasets: [{
         label: 'Incidents',
-        data: [12, 19, 3, 5, 8, 4],
+        data: [],
         backgroundColor: [
           'rgba(67, 97, 238, 0.7)',
           'rgba(239, 35, 60, 0.7)',
@@ -672,8 +672,36 @@
       }]
     };
 
+    // Load data from API
+    async function loadDashboardData() {
+      try {
+        const response = await fetch('/api/statistics');
+        const stats = await response.json();
+        
+        // Update sector data
+        sectorData.labels = stats.by_sector.map(item => item.name);
+        sectorData.datasets[0].data = stats.by_sector.map(item => item.count);
+        
+        // Update incident type data
+        incidentTypeData.labels = stats.by_type.map(item => item.name);
+        incidentTypeData.datasets[0].data = stats.by_type.map(item => item.count);
+        
+        // Update monthly trend
+        monthlyTrendData.labels = stats.monthly_trend.map(item => item.month);
+        monthlyTrendData.datasets[0].data = stats.monthly_trend.map(item => item.count);
+        
+        // Initialize charts with real data
+        initializeCharts();
+        
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+        // Initialize charts with default data
+        initializeCharts();
+      }
+    }
+    
     // Initialize charts
-    window.onload = function() {
+    function initializeCharts() {
       // Sector Chart (Bar)
       const sectorCtx = document.getElementById('sectorChart').getContext('2d');
       new Chart(sectorCtx, {
@@ -748,6 +776,11 @@
           }
         }
       });
+    }
+    
+    // Load dashboard data on page load
+    window.onload = function() {
+      loadDashboardData();
     };
 
     // Simulate data updates (in a real app, this would come from API)
