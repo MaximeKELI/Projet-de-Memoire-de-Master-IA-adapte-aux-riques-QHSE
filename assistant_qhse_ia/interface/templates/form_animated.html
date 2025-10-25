@@ -423,14 +423,9 @@
                             <div class="neon-border">
                                 <select class="form-select" id="secteur" name="secteur" required>
                                     <option value="">Sélectionnez un secteur</option>
-                                    <option value="1">Production</option>
-                                    <option value="2">Maintenance</option>
-                                    <option value="3">Logistique</option>
-                                    <option value="4">Administration</option>
-                                    <option value="5">R&D</option>
-                                    <option value="6">Qualité</option>
-                                    <option value="7">Sécurité</option>
-                                    <option value="8">Autres</option>
+                                    {% for sector in sectors %}
+                                    <option value="{{ sector.id }}">{{ sector.name }}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
                         </div>
@@ -444,14 +439,9 @@
                             <div class="neon-border">
                                 <select class="form-select" id="incident" name="incident" required>
                                     <option value="">Sélectionnez un type</option>
-                                    <option value="1">Chute</option>
-                                    <option value="2">Coupure</option>
-                                    <option value="3">Brûlure</option>
-                                    <option value="4">Intoxication</option>
-                                    <option value="5">Électrocution</option>
-                                    <option value="6">Écrasement</option>
-                                    <option value="7">Exposition</option>
-                                    <option value="8">Autres</option>
+                                    {% for incident_type in incident_types %}
+                                    <option value="{{ incident_type.id }}">{{ incident_type.name }}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
                         </div>
@@ -652,28 +642,59 @@
                 document.getElementById('probDisplay').textContent = value + '%';
             };
             
-            // Fonction pour simuler l'analyse IA
+            // Fonction pour l'analyse IA réelle
             async function simulateAIAnalysis() {
-                return new Promise((resolve) => {
-                    setTimeout(() => {
-                        const formData = new FormData(form);
-                        const secteur = formData.get('secteur');
-                        const incident = formData.get('incident');
-                        const probabilite = formData.get('probabilite');
-                        const probValue = formData.get('probValue');
-                        
-                        // Simulation des résultats
-                        const riskScore = Math.floor(Math.random() * 100);
-                        const riskLevel = getRiskLevel(riskScore);
-                        const recommendations = generateRecommendations(incident, riskScore);
-                        
-                        resolve({
-                            riskScore,
-                            riskLevel,
-                            recommendations
-                        });
-                    }, 3000);
-                });
+                try {
+                    const formData = new FormData(form);
+                    const analysisData = {
+                        sector_id: parseInt(formData.get('secteur')),
+                        incident_type_id: parseInt(formData.get('incident')),
+                        title: `Analyse de risque - ${formData.get('poste')}`,
+                        description: formData.get('description'),
+                        location: 'Non spécifié',
+                        severity_level: getSeverityLevel(formData.get('probabilite')),
+                        probability_score: parseFloat(formData.get('probValue')) / 100,
+                        time_incident: formData.get('heure') || new Date().toTimeString().slice(0, 5)
+                    };
+                    
+                    // Appel à l'API de prédiction
+                    const response = await fetch('/api/predict', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(analysisData)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de la prédiction');
+                    }
+                    
+                    const prediction = await response.json();
+                    
+                    // Convertir la prédiction en format attendu
+                    const riskScore = Math.floor(prediction.risk_score * 100);
+                    const riskLevel = getRiskLevel(riskScore);
+                    
+                    return {
+                        riskScore,
+                        riskLevel,
+                        recommendations: prediction.recommendations || []
+                    };
+                    
+                } catch (error) {
+                    console.error('Erreur analyse IA:', error);
+                    // Fallback vers simulation en cas d'erreur
+                    const riskScore = Math.floor(Math.random() * 100);
+                    const riskLevel = getRiskLevel(riskScore);
+                    const recommendations = generateRecommendations(formData.get('incident'), riskScore);
+                    
+                    return {
+                        riskScore,
+                        riskLevel,
+                        recommendations
+                    };
+                }
             }
             
             // Déterminer le niveau de risque

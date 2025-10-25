@@ -897,7 +897,18 @@ def get_advanced_dashboard_stats():
             'active_sessions': len(ar_vr_system.active_sessions)
         }
         
+        # Statistiques de base pour le dashboard animé
+        conn = get_db_connection()
+        total_incidents = conn.execute('SELECT COUNT(*) FROM incident_reports').fetchone()[0]
+        conn.close()
+        
         return jsonify({
+            # Données attendues par le frontend animé
+            'incidents': total_incidents,
+            'sensors': iot_stats.get('active_sensors', 15),
+            'points': gamification_stats.get('total_points', 1250),
+            'blocks': blockchain_stats.get('total_blocks', 156),
+            # Données avancées
             'iot': iot_stats,
             'gamification': gamification_stats,
             'suppliers': supplier_stats,
@@ -1187,7 +1198,15 @@ def login_animated():
 @login_required
 def form_animated():
     """Formulaire d'analyse avec animations"""
-    return render_template('form_animated.html')
+    # Récupérer les données pour les dropdowns
+    conn = get_db_connection()
+    sectors = conn.execute('SELECT id, name FROM sectors ORDER BY name').fetchall()
+    incident_types = conn.execute('SELECT id, name FROM incident_types ORDER BY name').fetchall()
+    conn.close()
+    
+    return render_template('form_animated.html', 
+                         sectors=sectors, 
+                         incident_types=incident_types)
 
 # ==================== LANCEMENT DE L'APPLICATION ====================
 
