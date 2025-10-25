@@ -13,6 +13,23 @@ scikit-learn==1.3.0
 pandas==2.0.3
 numpy==1.24.3
 joblib==1.3.2
+torch==2.0.1
+transformers==4.33.2
+openai==0.27.8
+opencv-python==4.8.0.76
+Pillow==10.0.0
+
+# GraphQL et API avancées
+graphene==3.2.2
+graphene-sqlalchemy==3.0.0
+Flask-GraphQL==2.0.1
+
+# IoT et capteurs
+paho-mqtt==1.6.1
+websockets==11.0.3
+
+# AR/VR
+pygame==2.5.0
 
 # Notifications et communications
 requests==2.31.0

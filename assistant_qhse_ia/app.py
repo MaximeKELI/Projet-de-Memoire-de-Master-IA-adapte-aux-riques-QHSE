@@ -26,6 +26,15 @@ from workflow.qhse_workflow import QHSEWorkflowSystem
 from training.qhse_training import QHSETrainingSystem
 from admin.admin_panel import QHSEAdminPanel
 
+# Import des modules avancés
+from ai.advanced_ai_engine import ai_engine
+from iot.sensor_manager import iot_manager
+from gamification.qhse_gamification import gamification_system
+from analytics.cost_prediction_engine import cost_prediction_engine
+from blockchain.qhse_blockchain import qhse_blockchain
+from ar_vr.qhse_ar_vr import ar_vr_system
+from suppliers.supplier_management import supplier_management
+
 # Configuration de l'application
 app = Flask(__name__)
 app.secret_key = 'qhse_secret_key_2024'
@@ -414,6 +423,490 @@ def get_statistics():
     return jsonify(stats)
 
 # ==================== NOUVELLES ROUTES QHSE AVANCÉES ====================
+
+# ==================== ROUTES IA AVANCÉE ====================
+
+@app.route('/api/ai/analyze-text', methods=['POST'])
+@login_required
+def analyze_text_ai():
+    """Analyse de texte avec l'IA avancée"""
+    try:
+        data = request.get_json()
+        text = data.get('text', '')
+        context = data.get('context', 'QHSE')
+        
+        analysis = ai_engine.analyze_text_with_gpt4(text, context)
+        return jsonify(analysis)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ai/analyze-image', methods=['POST'])
+@login_required
+def analyze_image_ai():
+    """Analyse d'image pour la sécurité"""
+    try:
+        if 'image' not in request.files:
+            return jsonify({'error': 'Aucune image fournie'}), 400
+        
+        file = request.files['image']
+        if file.filename == '':
+            return jsonify({'error': 'Aucun fichier sélectionné'}), 400
+        
+        # Sauvegarde temporaire
+        filename = f"temp_{datetime.now().timestamp()}.jpg"
+        filepath = os.path.join('temp', filename)
+        os.makedirs('temp', exist_ok=True)
+        file.save(filepath)
+        
+        analysis = ai_engine.analyze_image_safety(filepath)
+        
+        # Nettoyage
+        os.remove(filepath)
+        
+        return jsonify(analysis)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ai/predict-costs', methods=['POST'])
+@login_required
+def predict_costs_ai():
+    """Prédiction des coûts d'incident"""
+    try:
+        data = request.get_json()
+        prediction = cost_prediction_engine.predict_incident_costs(data)
+        return jsonify(prediction)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ai/sentiment-analysis', methods=['POST'])
+@login_required
+def analyze_sentiment():
+    """Analyse du sentiment des employés"""
+    try:
+        data = request.get_json()
+        text_data = data.get('text', [])
+        
+        if isinstance(text_data, str):
+            text_data = [text_data]
+        
+        analysis = ai_engine.analyze_employee_sentiment(text_data)
+        return jsonify(analysis)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ==================== ROUTES IoT ====================
+
+@app.route('/api/iot/sensors', methods=['GET'])
+@login_required
+def get_iot_sensors():
+    """Récupère le statut des capteurs IoT"""
+    try:
+        status = iot_manager.get_all_sensors_status()
+        return jsonify(status)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/iot/sensors/<sensor_id>/data', methods=['GET'])
+@login_required
+def get_sensor_data(sensor_id):
+    """Récupère les données d'un capteur"""
+    try:
+        hours = request.args.get('hours', 24, type=int)
+        data = iot_manager.get_sensor_data(sensor_id, hours)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/iot/sensors', methods=['POST'])
+@login_required
+def add_iot_sensor():
+    """Ajoute un nouveau capteur IoT"""
+    try:
+        data = request.get_json()
+        sensor_id = iot_manager.add_sensor(
+            data['sensor_id'],
+            data['name'],
+            data['sensor_type'],
+            data['location'],
+            data['zone']
+        )
+        return jsonify({'sensor_id': sensor_id, 'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/iot/alerts', methods=['GET'])
+@login_required
+def get_iot_alerts():
+    """Récupère les alertes des capteurs"""
+    try:
+        level = request.args.get('level')
+        alerts = iot_manager.get_alerts(level)
+        return jsonify(alerts)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/iot/alerts/<alert_id>/acknowledge', methods=['POST'])
+@login_required
+def acknowledge_alert(alert_id):
+    """Acquitte une alerte"""
+    try:
+        success = iot_manager.acknowledge_alert(alert_id)
+        return jsonify({'success': success})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ==================== ROUTES GAMIFICATION ====================
+
+@app.route('/api/gamification/profile/<int:user_id>', methods=['GET'])
+@login_required
+def get_user_gamification_profile(user_id):
+    """Récupère le profil gamification d'un utilisateur"""
+    try:
+        profile = gamification_system.get_user_profile(user_id)
+        if not profile:
+            return jsonify({'error': 'Profil non trouvé'}), 404
+        
+        return jsonify({
+            'user_id': profile.user_id,
+            'username': profile.username,
+            'level': profile.level,
+            'total_points': profile.total_points,
+            'current_streak': profile.current_streak,
+            'longest_streak': profile.longest_streak,
+            'badges_earned': profile.badges_earned,
+            'rank': profile.rank
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/gamification/award-points', methods=['POST'])
+@login_required
+def award_gamification_points():
+    """Attribue des points de gamification"""
+    try:
+        data = request.get_json()
+        success = gamification_system.award_points(
+            data['user_id'],
+            data['event_type'],
+            data['points'],
+            data['description']
+        )
+        return jsonify({'success': success})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/gamification/leaderboard', methods=['GET'])
+@login_required
+def get_leaderboard():
+    """Récupère le classement des utilisateurs"""
+    try:
+        category = request.args.get('category', 'all')
+        limit = request.args.get('limit', 10, type=int)
+        leaderboard = gamification_system.get_leaderboard(category, limit)
+        return jsonify(leaderboard)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/gamification/badges', methods=['GET'])
+@login_required
+def get_badges():
+    """Récupère les badges disponibles"""
+    try:
+        category = request.args.get('category')
+        badges = []
+        for badge_id, badge in gamification_system.badges.items():
+            if not category or badge.category == category:
+                badges.append({
+                    'badge_id': badge.badge_id,
+                    'name': badge.name,
+                    'description': badge.description,
+                    'icon': badge.icon,
+                    'points': badge.points,
+                    'category': badge.category,
+                    'rarity': badge.rarity
+                })
+        return jsonify(badges)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ==================== ROUTES BLOCKCHAIN ====================
+
+@app.route('/api/blockchain/certificates', methods=['GET'])
+@login_required
+def get_blockchain_certificates():
+    """Récupère les certificats blockchain d'un utilisateur"""
+    try:
+        user_id = request.args.get('user_id', type=int)
+        if not user_id:
+            return jsonify({'error': 'user_id requis'}), 400
+        
+        certificates = qhse_blockchain.get_certificate_history(user_id)
+        return jsonify(certificates)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/blockchain/certificates', methods=['POST'])
+@login_required
+def create_blockchain_certificate():
+    """Crée un certificat blockchain"""
+    try:
+        data = request.get_json()
+        certificate_id = qhse_blockchain.create_certificate(
+            data['user_id'],
+            data['certificate_type'],
+            datetime.fromisoformat(data['expires_at']) if data.get('expires_at') else None
+        )
+        return jsonify({'certificate_id': certificate_id, 'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/blockchain/verify/<certificate_id>', methods=['GET'])
+@login_required
+def verify_certificate(certificate_id):
+    """Vérifie un certificat blockchain"""
+    try:
+        verification = qhse_blockchain.verify_certificate(certificate_id)
+        return jsonify(verification)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/blockchain/stats', methods=['GET'])
+@login_required
+def get_blockchain_stats():
+    """Récupère les statistiques de la blockchain"""
+    try:
+        stats = qhse_blockchain.get_blockchain_stats()
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ==================== ROUTES AR/VR ====================
+
+@app.route('/api/arvr/scenes', methods=['GET'])
+@login_required
+def get_arvr_scenes():
+    """Récupère les scènes AR/VR disponibles"""
+    try:
+        scene_type = request.args.get('scene_type')
+        device_type = request.args.get('device_type')
+        
+        scenes = []
+        for scene_id, scene in ar_vr_system.scenes.items():
+            if (not scene_type or scene.scene_type.value == scene_type) and \
+               (not device_type or scene.device_type.value == device_type):
+                scenes.append({
+                    'scene_id': scene.scene_id,
+                    'name': scene.name,
+                    'description': scene.description,
+                    'scene_type': scene.scene_type.value,
+                    'device_type': scene.device_type.value,
+                    'duration_minutes': scene.duration_minutes,
+                    'difficulty_level': scene.difficulty_level
+                })
+        
+        return jsonify(scenes)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/arvr/sessions', methods=['POST'])
+@login_required
+def start_arvr_session():
+    """Démarre une session AR/VR"""
+    try:
+        data = request.get_json()
+        session_id = ar_vr_system.start_session(
+            data['user_id'],
+            data['scene_id'],
+            data['device_type']
+        )
+        return jsonify({'session_id': session_id, 'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/arvr/sessions/<session_id>/end', methods=['POST'])
+@login_required
+def end_arvr_session(session_id):
+    """Termine une session AR/VR"""
+    try:
+        data = request.get_json()
+        score = data.get('score')
+        success = ar_vr_system.end_session(session_id, score)
+        return jsonify({'success': success})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/arvr/sessions/<session_id>/interaction', methods=['POST'])
+@login_required
+def record_arvr_interaction(session_id):
+    """Enregistre une interaction AR/VR"""
+    try:
+        data = request.get_json()
+        success = ar_vr_system.record_interaction(
+            session_id,
+            data['interaction_type'],
+            data.get('object_id'),
+            data.get('position'),
+            data.get('data')
+        )
+        return jsonify({'success': success})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ==================== ROUTES GESTION FOURNISSEURS ====================
+
+@app.route('/api/suppliers', methods=['GET'])
+@login_required
+def get_suppliers():
+    """Récupère la liste des fournisseurs"""
+    try:
+        risk_level = request.args.get('risk_level')
+        suppliers = []
+        
+        for supplier in supplier_management.suppliers.values():
+            if not risk_level or supplier.risk_level.value == risk_level:
+                suppliers.append({
+                    'supplier_id': supplier.supplier_id,
+                    'name': supplier.name,
+                    'contact_person': supplier.contact_person,
+                    'email': supplier.email,
+                    'status': supplier.status.value,
+                    'risk_level': supplier.risk_level.value,
+                    'qhse_score': supplier.qhse_score,
+                    'last_audit_date': supplier.last_audit_date.isoformat() if supplier.last_audit_date else None
+                })
+        
+        return jsonify(suppliers)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/suppliers', methods=['POST'])
+@login_required
+def add_supplier():
+    """Ajoute un nouveau fournisseur"""
+    try:
+        data = request.get_json()
+        supplier_id = supplier_management.add_supplier(
+            data['name'],
+            data['contact_person'],
+            data['email'],
+            data['phone'],
+            data['address'],
+            data['country'],
+            data['business_type'],
+            data.get('registration_number')
+        )
+        return jsonify({'supplier_id': supplier_id, 'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/suppliers/<supplier_id>/risk-assessment', methods=['GET'])
+@login_required
+def get_supplier_risk_assessment(supplier_id):
+    """Récupère l'évaluation des risques d'un fournisseur"""
+    try:
+        assessment = supplier_management.get_supplier_risk_assessment(supplier_id)
+        return jsonify(assessment)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/suppliers/audits', methods=['POST'])
+@login_required
+def schedule_supplier_audit():
+    """Planifie un audit fournisseur"""
+    try:
+        data = request.get_json()
+        audit_id = supplier_management.schedule_audit(
+            data['supplier_id'],
+            data['auditor_id'],
+            data['audit_type'],
+            datetime.fromisoformat(data['scheduled_date'])
+        )
+        return jsonify({'audit_id': audit_id, 'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/suppliers/incidents', methods=['POST'])
+@login_required
+def report_supplier_incident():
+    """Signale un incident fournisseur"""
+    try:
+        data = request.get_json()
+        incident_id = supplier_management.report_incident(
+            data['supplier_id'],
+            data['incident_type'],
+            data['description'],
+            data['severity_level'],
+            datetime.fromisoformat(data['occurred_date']),
+            data.get('impact_assessment')
+        )
+        return jsonify({'incident_id': incident_id, 'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ==================== ROUTES COÛTS ET ANALYTICS ====================
+
+@app.route('/api/analytics/cost-trends', methods=['GET'])
+@login_required
+def get_cost_trends():
+    """Récupère les tendances des coûts"""
+    try:
+        days = request.args.get('days', 365, type=int)
+        trends = cost_prediction_engine.get_cost_trends(days)
+        return jsonify(trends)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/analytics/cost-report', methods=['POST'])
+@login_required
+def generate_cost_report():
+    """Génère un rapport de coûts"""
+    try:
+        data = request.get_json()
+        start_date = datetime.fromisoformat(data['start_date'])
+        end_date = datetime.fromisoformat(data['end_date'])
+        report = cost_prediction_engine.generate_cost_report(start_date, end_date)
+        return jsonify(report)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ==================== ROUTES DASHBOARD AVANCÉ ====================
+
+@app.route('/api/dashboard/advanced-stats', methods=['GET'])
+@login_required
+def get_advanced_dashboard_stats():
+    """Récupère les statistiques avancées du tableau de bord"""
+    try:
+        # Statistiques IoT
+        iot_stats = iot_manager.get_all_sensors_status()
+        
+        # Statistiques gamification
+        gamification_stats = {
+            'total_users': len(gamification_system.get_leaderboard('all', 1000)),
+            'top_users': gamification_system.get_leaderboard('all', 5)
+        }
+        
+        # Statistiques fournisseurs
+        supplier_stats = supplier_management.get_supplier_statistics()
+        
+        # Statistiques blockchain
+        blockchain_stats = qhse_blockchain.get_blockchain_stats()
+        
+        # Statistiques AR/VR
+        arvr_stats = {
+            'total_scenes': len(ar_vr_system.scenes),
+            'active_sessions': len(ar_vr_system.active_sessions)
+        }
+        
+        return jsonify({
+            'iot': iot_stats,
+            'gamification': gamification_stats,
+            'suppliers': supplier_stats,
+            'blockchain': blockchain_stats,
+            'arvr': arvr_stats,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/admin')
 @login_required
